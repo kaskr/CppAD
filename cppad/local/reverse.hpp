@@ -204,6 +204,171 @@ VectorBase ADFun<Base>::Reverse(size_t q, const VectorBase &w)
 	return value;
 }
 	
+/*  =========================== kaspers Reverse */
+template <typename Base>
+template <typename VectorBase>
+//VectorBase ADFun<Base>::myReverse(size_t p, const VectorBase &w, size_t dep_var_index, VectorBase &value) 
+void ADFun<Base>::myReverse(size_t p, const VectorBase &w, size_t dep_var_index, VectorBase &value) 
+{
+	CPPAD_ASSERT_KNOWN(
+		p == 1,
+		"myReverse only works for first order calculations."
+	);  
+
+	// constants
+	const Base zero(0);
+
+	// temporary indices
+	size_t j, k;
+
+	// number of independent variables
+	size_t n = ind_taddr_.size();
+
+	// number of dependent variables
+	// size_t m = dep_taddr_.size();
+
+	if(false){
+	  pod_vector<Base> Partial;
+	  Partial.extend(num_var_tape_ * p);
+	  }
+
+	// update maximum memory requirement
+	// memoryMax = std::max( memoryMax, 
+	// 	Memory() + num_var_tape_ * p * sizeof(Base)
+	// );
+
+	// check VectorBase is Simple Vector class with Base type elements
+	CheckSimpleVector<Base, VectorBase>();
+
+	CPPAD_ASSERT_KNOWN(
+		w.size() == m || w.size() == (m * p),
+		"Argument w to Reverse does not have length equal to\n"
+		"the dimension of the range for the corresponding ADFun."
+	);
+	CPPAD_ASSERT_KNOWN(
+		p > 0,
+		"The first argument to Reverse must be greater than zero."
+	);  
+	CPPAD_ASSERT_KNOWN(
+		taylor_per_var_ >= p,
+		"Less that p taylor_ coefficients are currently stored"
+		" in this ADFun object."
+	);  
+
+	/*
+	// initialize entire Partial matrix to zero
+	for(i = 0; i < num_var_tape_; i++)
+		for(j = 0; j < p; j++)
+			Partial[i * p + j] = zero;
+
+	// set the dependent variable direction
+	// (use += because two dependent variables can point to same location)
+	for(i = 0; i < m; i++)
+	{	CPPAD_ASSERT_UNKNOWN( dep_taddr_[i] < num_var_tape_ );
+		if( w.size() == m )
+			Partial[dep_taddr_[i] * p + p - 1] += w[i];
+		else
+		{	for(k = 0; k < p; k++)
+				// ? should use += here, first make test to demonstrate bug
+				Partial[ dep_taddr_[i] * p + k ] = w[i * p + k ];
+		}
+	}
+	*/
+	size_t dep_var_taddr=dep_taddr_[dep_var_index];
+	Partial[dep_var_taddr * p + p - 1] = 1.0;
+
+	// evaluate the derivatives
+	// vector<size_t> relevant(play_.num_rec_var());
+	myReverseSweep(
+		p - 1,
+		n,
+		num_var_tape_,
+		&play_,
+		cap_order_taylor_,
+		taylor_.data(),
+		p,
+		Partial.data(),
+		//dep_var_taddr,
+		dep_var_index,
+		// op_mark_,
+		// var2op_,
+		// tp_,
+		this,
+		load_op_
+	);
+
+
+	// return the derivative values
+	// VectorBase value(n * p);
+    std::vector<size_t>::iterator it;
+    for(it=op_mark_index_.begin();*it<=n;it++){
+      //colpattern[col][j]=*it-1;
+      j=*it-1;
+	    for(k = 0; k < p; k++)
+	      value[j * p + k ] = 
+		Partial[ind_taddr_[j] * p + p - 1 - k];
+    }
+
+    if(false){
+	for(j = 0; j < n; j++){
+	  //if(relevant_[ ind_taddr_[j] ]==dep_var_taddr)
+	  if(op_mark_[ var2op_[ ind_taddr_[j] ] ]==dep_var_taddr)
+	    {
+
+	    for(k = 0; k < p; k++)
+	      value[j * p + k ] = 
+		Partial[ind_taddr_[j] * p + p - 1 - k];
+	  
+	  }
+	}
+    }
+
+    // Fill used Partials with zeros
+    tape_point tp;
+    for(it=op_mark_index_.begin();it!=op_mark_index_.end();it++){
+      tp=tp_[*it];
+      for(size_t i=0;i<CppAD::NumRes(tp.op);i++)
+	for(j = 0; j < p; j++)
+	  Partial[tp.var_index-i*p+j]=0;
+    }
+
+#ifdef DEBUG_KASPER
+    int countnnz=0;
+    for(int i = 0; i < num_var_tape_; i++)
+      for(int j = 0; j < p; j++)
+	countnnz += (Partial[i * p + j] != zero);
+    if(countnnz>0){
+      std::cout << "Partials not correctly cleared. Nonzeros: " << countnnz << "\n";
+    }
+#endif
+
+	// EXPERIMENT
+	/*
+	for(j = 0; j < n; j++)
+	{	CPPAD_ASSERT_UNKNOWN( ind_taddr_[j] < num_var_tape_ );
+
+		// independent variable taddr equals its operator taddr 
+		CPPAD_ASSERT_UNKNOWN( play_.GetOp( ind_taddr_[j] ) == InvOp );
+
+		// by the Reverse Identity Theorem 
+		// partial of y^{(k)} w.r.t. u^{(0)} is equal to
+		// partial of y^{(p-1)} w.r.t. u^{(p - 1 - k)}
+		if( w.size() == m )
+		{	for(k = 0; k < p; k++)
+				value[j * p + k ] = 
+					Partial[ind_taddr_[j] * p + p - 1 - k];
+		}
+		else
+		{	for(k = 0; k < p; k++)
+				value[j * p + k ] =
+					Partial[ind_taddr_[j] * p + k];
+		}
+	}
+	*/
+
+	//return value;
+}
+/* =================== End kaspers Reverse */
 
 } // END_CPPAD_NAMESPACE
 # endif
