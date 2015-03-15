@@ -1040,6 +1040,15 @@ void myReverseSweep(
 			break;
 			// --------------------------------------------------
 
+# if CPPAD_COMPILER_HAS_ERF
+			case ErfOp:
+			reverse_erf_op(
+				d, i_var, arg, parameter, J, Taylor, K, Partial
+			);
+			break;
+# endif
+			// --------------------------------------------------
+
 			case ExpOp:
 			reverse_exp_op(
 				d, i_var, arg[0], J, Taylor, K, Partial

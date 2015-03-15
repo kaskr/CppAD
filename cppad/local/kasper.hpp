@@ -203,6 +203,13 @@ void markArgs(tape_point &tp)
 		markOpField(os, "  v=", &ind[0], ncol);
 		break;
 
+		case ErfOp:
+		CPPAD_ASSERT_UNKNOWN( NumArg(op) == 3 );
+		// ind[2] points to the parameter 0
+		// ind[3] points to the parameter 2 / sqrt(pi)
+		markOpField(os, "  v=", &ind[0], ncol);
+		break;
+
 		case ParOp:
 		case UsrapOp:
 		case UsrrpOp:
