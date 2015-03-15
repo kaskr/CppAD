@@ -148,6 +148,10 @@ void markArgs(tape_point &tp)
 
 		case AddvvOp:
 		case DivvvOp:
+		case LevvOp:
+		case LtvvOp:
+		case EqvvOp:
+		case NevvOp:
 		case MulvvOp:
 		case PowvvOp:
 		case SubvvOp:
@@ -157,6 +161,10 @@ void markArgs(tape_point &tp)
 		break;
 
 		case AddpvOp:
+		case LepvOp:
+		case LtpvOp:
+		case EqpvOp:
+		case NepvOp:
 		case SubpvOp:
 		case MulpvOp:
 		case PowpvOp:
@@ -167,6 +175,8 @@ void markArgs(tape_point &tp)
 		break;
 
 		case DivvpOp:
+		case LevpOp:
+		case LtvpOp:
 		case PowvpOp:
 		case SubvpOp:
 		CPPAD_ASSERT_UNKNOWN( NumArg(op) == 2 );
@@ -257,19 +267,6 @@ void markArgs(tape_point &tp)
 		//else	markOpField(os, " pf=", Rec->GetPar(ind[5]), ncol);
 		break;
 
-		case ComOp:
-		CPPAD_ASSERT_UNKNOWN(ind[1] != 0);
-		CPPAD_ASSERT_UNKNOWN( NumArg(op) == 4 );
-		// if( ind[1] & 1 )
-		// 	markOpField(os, "res=", 1, ncol);
-		// else	markOpField(os, "res=", 0, ncol);
-		if( ind[1] & 2 )
-			markOpField(os, " vl=", &ind[2], ncol);
-		//else	markOpField(os, " pl=", Rec->GetPar(ind[2]), ncol);
-		if( ind[1] & 4 )
-			markOpField(os, " vr=", &ind[3], ncol);
-		//else	markOpField(os, " pr=", Rec->GetPar(ind[3]), ncol);
-		break;
 
 		default:
 		CPPAD_ASSERT_UNKNOWN(0);
