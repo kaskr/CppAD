@@ -982,7 +982,16 @@ void myReverseSweep(
 			break;
 			// --------------------------------------------------
 
-			case ComOp:
+			case EqpvOp:
+			case EqvvOp:
+			case LtpvOp:
+			case LtvpOp:
+			case LtvvOp:
+			case LepvOp:
+			case LevpOp:
+			case LevvOp:
+			case NepvOp:
+			case NevvOp:
 			break;
 			// --------------------------------------------------
 
