@@ -18,6 +18,12 @@ namespace CppAD { // BEGIN_CPPAD_NAMESPACE
 \file player.hpp
 File used to define the player class.
 */
+struct tape_point{
+  OpCode op;
+  const addr_t* op_arg;
+  size_t op_index;
+  size_t var_index;
+};
 
 
 /*!
@@ -48,8 +54,10 @@ private:
 	pod_vector<addr_t> vecad_ind_rec_;
 
 	/// The operation argument indices in the recording
+public:
 	pod_vector<addr_t> op_arg_rec_;
 
+private:
 	/// The parameters in the recording.
 	/// Note that Base may not be plain old data, so use false in consructor.
 	pod_vector<Base> par_rec_;
