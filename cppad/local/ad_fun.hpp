@@ -1,6 +1,8 @@
 /* $Id$ */
 # ifndef CPPAD_AD_FUN_INCLUDED
 # define CPPAD_AD_FUN_INCLUDED
+#include <vector>
+#include <algorithm>
 
 /* --------------------------------------------------------------------------
 CppAD: C++ Algorithmic Differentiation: Copyright (C) 2003-15 Bradley M. Bell
@@ -250,6 +252,7 @@ private:
 	);
 // ------------------------------------------------------------
 public:
+	#include "kasper.hpp"
 	/// copy constructor
 	ADFun(const ADFun& g)
 	: num_var_tape_(0)
@@ -302,6 +305,10 @@ public:
 	/// reverse mode sweep
 	template <typename VectorBase>
 	VectorBase Reverse(size_t p, const VectorBase &v);
+
+	/// kaspers reverse mode sweep
+	template <typename VectorBase>
+	void myReverse(size_t p, const VectorBase &v, size_t dep_var_index, VectorBase &value);
 
 	// forward mode Jacobian sparsity
 	// (see doxygen documentation in for_sparse_jac.hpp)
